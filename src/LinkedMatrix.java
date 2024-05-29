@@ -1,117 +1,220 @@
-class Entry{
-    float value;
-    Entry top, bottom, left, right;
+import java.util.LinkedList;
 
-    Entry(float value, Entry top, Entry bottom, Entry right, Entry left){
-        this.value = value;
-        this.top = top;
-        this.bottom = bottom;
-        this.right = right;
-        this.left = left;
-    }
-
-    public float getValue(String pos){
-        String position = pos.toLowerCase();
-        switch(position){
-            case "top":
-            return top.value;
-            
-            case "bottom":
-            return bottom.value;
-            
-            case "left":
-            return left.value;
-            
-            case "right":
-            return right.value;
-
-            default:
-            return 0;
-        }
-    }
-}
-
-class LinkedMatrix {
-    private int row, col;
-    private Entry[][] matrix;
+public class LinkedMatrix {
+    int row, col;
+    LinkedList<LinkedList<Float>> matrix;
     LinkedMatrix(int row, int col){
         this.row = row;
         this.col = col;
-        this.matrix = new Entry[this.row][this.col];
-        generate();
-        link();
-    }
+        this.matrix = new LinkedList<>();
 
-    private void generate(){
-        for(int r = 0; r < this.row; r++){
-            for(int c = 0; c < this.col; c++){
-                Entry matEntr = new Entry(0, null, null, null, null);
-                this.matrix[r][c] = matEntr;
+        for(int r = 0; r < row; r++){
+            LinkedList<Float> matRow = new LinkedList<>();
+            for(int c = 0; c < col; c++){
+                matRow.add(0.0f);
             }
+            this.matrix.add(matRow);
         }
     }
 
-    private void link(){
-        for(int r = 0; r < this.row; r++){
-            for(int c = 0; c < this.col; c++){
-                Entry entry = this.matrix[r][c];
-                if(r > 0){entry.top = this.matrix[r-1][c];}
-                if(r < this.row - 1){entry.bottom = this.matrix[r+1][c];}
-                if(c > 0){entry.left = this.matrix[r][c-1];}
-                if(c < this.col - 1){entry.right = this.matrix[r][c+1];}
-            }
-        }
+    public float getEntry(int row, int col){
+        LinkedList<Float> matRow = this.matrix.get(row-1);
+        return matRow.get(col-1);
     }
 
-    public int colSize(){return this.col;}
-    public int rowSize(){return this.row;}
+    public void setEntry(int row, int col, float value){
+        LinkedList<Float> matRow = this.matrix.get(row-1);
+        matRow.set(col-1, value);
+    }
+
+    // private boolean isZeroRow(int row){
+    //     LinkedList<Float> matRow = this.matrix.get(row-1);
+    //     for(int i = 0; i < this.col; i++){
+    //         if(matRow.get(i) != 0){return false;}
+    //     }
+    //     return true;
+    // }
+
+    // private void interchange(int a, int b){
+    //     LinkedList<Float> A = this.matrix.get(a);
+    //     LinkedList<Float> B = this.matrix.get(b);
+    //     LinkedList<Float> C = A;
+
+    //     A = B;
+    //     B = C;
+    //     C = A;
+    // }
+
+    private void addEntry(int row, int col, float add){
+        LinkedList<Float> matRow = this.matrix.get(row-1);
+        matRow.set(col-1, matRow.get(col-1) + add);
+    }
+
+    private LinkedMatrix copy(){
+        LinkedMatrix matCopy = new LinkedMatrix(this.row, this.col);
+        for (int r = 1 ; r <= this.row ; r++){
+            for (int c = 1 ; c <= this.col; c++){
+                matCopy.setEntry(r, c, this.getEntry(r, c));
+            }
+        }
+        return matCopy;
+    }
 
     public void display(){
         for(int r = 0; r < this.row; r++){
             System.out.print("[ ");
             for(int c = 0; c < this.col; c++){
-                System.out.print(this.matrix[r][c].value);
-                if (c < this.col - 1){System.out.print("  ");}
+                if (c > 0){System.out.print("  ");}
+                System.out.printf("%.2f", this.getEntry(r+1, c+1));
             }
             System.out.print(" ]");
             System.out.println();
         }
     }
 
-    public void editEntry(int row, int col, float value){
-        this.matrix[row-1][col-1].value = value;
+    public void generateRandomMatrix(){
+        for (int r = 1; r <= this.row; r++){
+            for(int c = 1 ; c <= this.col; c++){
+                int num = (int)(Math.random() * 10);
+                this.setEntry(r, c, num);
+            }
+        }
     }
 
-    public Entry getEntry(int row, int col){
-        return this.matrix[row-1][col-1];
+    public LinkedMatrix minorMatrix(int mr, int mc){
+        LinkedMatrix minorMat = new LinkedMatrix(this.row - 1, this.col - 1);
+        int row = 1;
+        int col = 1;
+        for (int r = 1; r <= this.row; r++){
+            if (r == mr){
+                continue;
+            }
+            else{
+                for (int c = 1; c <= this.col; c++){
+                    if(c == mc){
+                        continue;
+                    }
+                    else{
+                        minorMat.setEntry(row, col, this.getEntry(r, c));
+                        col++;
+                    }
+                }
+                col = 1;
+                row++;
+            }
+        }
+        return minorMat;
     }
 
-    public Entry[] getRow(int r){
-        Entry entry = this.matrix[row-1][0];
 
-        int i = 0;
-        Entry[] row = new Entry[this.row];
-        while(entry != null){
-            row[i] = entry;
-            entry = entry.right;
-            i++;
+    public float cofactor(int mr, int mc){
+        LinkedMatrix cofactorMat = this.minorMatrix(mr, mc);
+        float det = cofactorMat.determinant();
+        float control = (float)(Math.pow(-1, mr+mc));
+        return control * det;
+    }
+
+    public int getRowSize(){return this.row;}
+    public int getColSize(){return this.col;}
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    public LinkedMatrix reduce(){
+        LinkedMatrix reduced = this.copy();
+        // int lastSlot = this.row;
+
+        for (int c = 1 ; c <= this.col; c++){
+
+            for (int r = c + 1; r <= this.row; r++){
+                
+                float pivot = reduced.getEntry(c, c);
+                float scale = reduced.getEntry(r, c);
+
+                if (pivot != 0){
+                    for(int i = 1; i <= this.col; i++){
+                        float new_entry = reduced.getEntry(r, i) - (scale/pivot) * reduced.getEntry(c, i);
+                        reduced.setEntry(r, i, new_entry);
+                    }
+                }
+            }
         }
 
-        return row;
+        // for (int i = 0; i < this.row; i++){
+        //     if(this.isZeroRow(i)){
+        //         this.interchange(i, lastSlot-1);
+        //         lastSlot--;
+        //     }
+        // }
+        return reduced;
     }
 
-    public Entry[] getColumn(int c){
-        Entry entry = this.matrix[0][c-1];
+    public LinkedMatrix matrixMultiply(ArrayMatrix b){
+        if(this.col == b.getRowSize()){
+            int prod_row = this.row;
+            int prod_col = b.getColSize();
 
-        int i = 0;
-        Entry[] col = new Entry[this.col];
-        while(entry != null){
-            col[i] = entry;
-            entry = entry.bottom;
-            i++;
+            LinkedMatrix product = new LinkedMatrix(prod_row, prod_col);
+            for(int i = 1; i <= prod_row; i++){
+
+                for(int j = 1; j <= prod_col; j++){
+
+                    for(int k = 1; k <= this.col; k++){
+
+                        float A = this.getEntry(i, k);
+                        float B = b.getEntry(k, j);
+                        product.addEntry(i, j, A*B);
+                        
+                    }
+                }
+            }
+            return product;
         }
-
-        return col;
+        else{
+            return null;
+        }
     }
 
+    public float determinant(){
+        if(this.row == this.col){
+            if (this.row == 1){
+                return this.getEntry(1, 1);
+            }
+            if (this.row == 2){
+                float a = this.getEntry(1, 1) * this.getEntry(2, 2);
+                float b = this.getEntry(2, 1) * this.getEntry(1, 2);
+                return a - b;
+            }
+            if (this.row == 3){
+                float aei = this.getEntry(1, 1) * this.getEntry(2,2) * this.getEntry(3, 3);
+                float bfg = this.getEntry(1, 2) * this.getEntry(2,3) * this.getEntry(3, 1);
+                float cdh = this.getEntry(1, 3) * this.getEntry(2,1) * this.getEntry(3, 2);
+
+                float ceg = this.getEntry(1, 3) * this.getEntry(2,2) * this.getEntry(3, 1); 
+                float bdi = this.getEntry(1, 2) * this.getEntry(2,1) * this.getEntry(3, 3);
+                float afh = this.getEntry(1, 1) * this.getEntry(2,3) * this.getEntry(3, 2);
+
+                float x = aei + bfg + cdh;
+                float y = ceg + bdi + afh;
+
+                return x - y;
+            }
+
+            if (this.row > 3){
+                // ArrayMatrix reduced = this.reduce();
+                // int det = 1;
+
+                // for (int i = 1; i <= this.row; i++){
+                //     det *= reduced.getEntry(i, i);
+                // }
+
+                int defaultRow = 1;
+                float det = 0;
+                for (int i = 1; i <= this.col; i++){
+                    det += this.getEntry(defaultRow, i) * this.cofactor(defaultRow, i);
+                }
+                return det;
+            }
+        }
+        return 0;
+    }
 }
