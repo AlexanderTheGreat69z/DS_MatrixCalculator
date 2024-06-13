@@ -20,20 +20,20 @@ public class App {
         System.out.println();
 
         // Array test //
-        long arr_det_start = System.currentTimeMillis();
+        long arr_det_start = System.nanoTime();
         System.out.println("Determinant (Array)\t: " + arrMat.determinant());
-        long arr_det_end = System.currentTimeMillis();
+        long arr_det_end = System.nanoTime();
 
         // Linked test //
-        long link_det_start = System.currentTimeMillis();
+        long link_det_start = System.nanoTime();
         System.out.println("Determinant of (Linked)\t: " + linkMat.determinant());
-        long link_det_end = System.currentTimeMillis();
+        long link_det_end = System.nanoTime();
 
         System.out.println();
 
         // Runtime output //
-        System.out.println("ArrayMatrix Determinant Execution time\t= " + (arr_det_end - arr_det_start) + " ms");
-        System.out.println("LinkedMatrix Determinant Execution time\t= " + (link_det_end - link_det_start) + " ms");
+        System.out.println("ArrayMatrix Determinant Execution time\t= " + String.format("%.5f", (arr_det_end - arr_det_start) / 1000000) + " ms");
+        System.out.println("LinkedMatrix Determinant Execution time\t= " + String.format("%.5f", (link_det_end - link_det_start) / 1000000) + " ms");
     }
 
     public static void reductionTest(int row, int col) {
@@ -55,24 +55,24 @@ public class App {
         arrMat.display();
 
         // Array test //
-        long arr_red_start = System.currentTimeMillis();
+        long arr_red_start = System.nanoTime();
         Matrix arrRed = arrMat.reduce();
         System.out.println("\nReduced arrMat:");
         arrRed.display();
-        long arr_red_end = System.currentTimeMillis();
+        long arr_red_end = System.nanoTime();
 
         // Linked test //
-        long link_red_start = System.currentTimeMillis();
+        long link_red_start = System.nanoTime();
         Matrix linkRed = linkMat.reduce();
         System.out.println("\n Reduced linkMat:");
         linkRed.display();
-        long link_red_end = System.currentTimeMillis();
+        long link_red_end = System.nanoTime();
 
         System.out.println();
 
         // Runtime output //
-        System.out.println("ArrayMatrix Reduction Execution time\t= " + (arr_red_end - arr_red_start) + " ms");
-        System.out.println("LinkedMatrix Reduction Execution time\t= " + (link_red_end - link_red_start) + " ms");
+        System.out.println("ArrayMatrix Reduction Execution time\t= " + String.format("%.5f", (arr_red_end - arr_red_start) / 1000000) + " ms");
+        System.out.println("LinkedMatrix Reduction Execution time\t= " + String.format("%.5f", (link_red_end - link_red_start) / 1000000) + " ms");
     }
 
     public static void multiplicationTest(int row, int col){
@@ -101,125 +101,26 @@ public class App {
         System.out.println("\nConsider ArrayMatrix B = ");
         arr_B.display();
 
-        long arr_mul_start = System.currentTimeMillis();
+        long arr_mul_start = System.nanoTime();
         System.out.println("\nthen A . B =");
         arr_A.matrixMultiply(arr_B).display();
-        long arr_mul_end = System.currentTimeMillis();
+        long arr_mul_end = System.nanoTime();
 
         System.out.println("\nConsider LinkedMatrix A = ");
         link_A.display();
         System.out.println("\nConsider LinkedMatrix B = ");
         link_B.display();
 
-        long link_mul_start = System.currentTimeMillis();
+        long link_mul_start = System.nanoTime();
         System.out.println("\nthen A . B =");
         link_A.matrixMultiply(link_B).display();
-        long link_mul_end = System.currentTimeMillis();
+        long link_mul_end = System.nanoTime();
 
-        System.out.println("ArrayMatrix Multiplication Execution time\t= " + (arr_mul_end - arr_mul_start) + " ms");
-        System.out.println("LinkedMatrix Multiplication Execution time\t= " + (link_mul_end - link_mul_start) + " ms");
+        System.out.println("ArrayMatrix Multiplication Execution time\t= " + String.format("%.5f", (arr_mul_end - arr_mul_start) / 1000000) + " ms");
+        System.out.println("LinkedMatrix Multiplication Execution time\t= " + String.format("%.5f", (link_mul_end - link_mul_start) / 1000000) + " ms");
 
     }
     
-    public static void testArrayMatrix(int row, int col) {
-
-        // Generate random entries for Array Matrix //
-        ArrayMatrix arrMat = new ArrayMatrix(row, col);
-        System.out.println("Generated Matrix:");
-        arrMat.generateRandomMatrix();
-        arrMat.display();
-
-        // DETERMINANT TEST: Calculate the determinant of the matrix //
-        long a_start = System.currentTimeMillis();
-
-        System.out.println("\nDeterminant of above matrix:");
-        System.out.println(arrMat.determinant());
-
-        long a_end = System.currentTimeMillis();
-
-        // ROW REDUCTION TEST: Row reduce the matrix into Row Echelon Form //
-        long b_start = System.currentTimeMillis();
-
-        Matrix reduced = arrMat.reduce();
-        System.out.println("\nRow reduced version:");
-        reduced.display();
-
-        long b_end = System.currentTimeMillis();
-
-        // MATRIX MULTIPLICATION TEST: Calculate the product between two matrices //
-        long c_start = System.currentTimeMillis();
-
-        ArrayMatrix A = new ArrayMatrix(row, col);
-        System.out.println("\nlet A = ");
-        A.generateRandomMatrix();
-        A.display();
-
-        ArrayMatrix B = new ArrayMatrix(row, col);
-        System.out.println("\nlet B = ");
-        B.generateRandomMatrix();
-        B.display();
-
-        System.out.println("\nA . B =");
-        A.matrixMultiply(B).display();
-
-        long c_end = System.currentTimeMillis();
-
-
-        System.out.println("\nArrayMatrix executions:");
-        System.out.println("- Determinant\t: " + (a_end - a_start) + " ms");
-        System.out.println("- Reduction\t: " + (b_end - b_start) + " ms");
-        System.out.println("- Multiply\t: " + (c_end - c_start) + " ms");
-    }
-
-    public static void testLinkedMatrix(int row, int col){
-
-        // Generate random entries for Array Matrix //
-        LinkedMatrix linkMat = new LinkedMatrix(row, col);
-        System.out.println("Generated Matrix:");
-        linkMat.generateRandomMatrix();
-        linkMat.display();
-
-        // DETERMINANT TEST: Calculate the determinant of the matrix //
-        long a_start = System.currentTimeMillis();
-
-        System.out.println("\nDeterminant of above matrix:");
-        System.out.println(linkMat.determinant());
-        
-        long a_end = System.currentTimeMillis();
-
-        // ROW REDUCTION TEST: Row reduce the matrix into Row Echelon Form //
-        long b_start = System.currentTimeMillis();
-
-        Matrix reduced = linkMat.reduce();
-        System.out.println("\nRow reduced version:");
-        reduced.display();
-
-        long b_end = System.currentTimeMillis();
-
-        // MATRIX MULTIPLICATION TEST: Calculate the product between two matrices //
-        long c_start = System.currentTimeMillis();
-
-        ArrayMatrix A = new ArrayMatrix(row, col);
-        System.out.println("\nlet A = ");
-        A.generateRandomMatrix();
-        A.display();
-
-        ArrayMatrix B = new ArrayMatrix(row, col);
-        System.out.println("\nlet B = ");
-        B.generateRandomMatrix();
-        B.display();
-
-        System.out.println("\nA . B =");
-        A.matrixMultiply(B).display();
-
-        long c_end = System.currentTimeMillis();
-
-        System.out.println("\nLinkedMatrix executions:");
-        System.out.println("- Determinant\t: " + (a_end - a_start) + " ms");
-        System.out.println("- Reduction\t: " + (b_end - b_start) + " ms");
-        System.out.println("- Multiply\t: " + (c_end - c_start) + " ms");
-    }
-
     public static void main(String[] args) throws Exception {
 
         // Modify matrix size
